@@ -27,7 +27,7 @@
 #define PPG_CONFIG_2 0x12
 #define PPG_CONFIG_3 0x13
 #define PRXY_INT_TSH 0x14
-#define PHD_BIAD 0x15
+#define PHD_BIAS 0x15
 
 //ppg picket fence
 #define PPG_PKT_FEN 0x16

@@ -3,6 +3,9 @@
 
 #include "MAX86141_Registers.h"
 
+
+#include <SPI.h>
+#include <arduino.h>
 #include<stdint.h>
 
 
@@ -33,7 +36,7 @@ class MAX86141 {
         void getPPGConfiguration();//to read PPG values
         uint8_t getPPGChannelsCount();//to get ppg channel count
         uint8_t getLEDChannelsCount();//to get LED channels count
-        
+
 
 
 

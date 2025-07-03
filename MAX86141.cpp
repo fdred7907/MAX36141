@@ -6,7 +6,7 @@
 //global
 
 //LEDC Sequence Array
-    uint8_t LEDC[6];
+uint8_t LEDC[6];
 
 //PPG Ranges
 uint8_t PPG1_ADC_RGE;
@@ -14,6 +14,19 @@ uint8_t PPG2_ADC_RGE;
 
 //data buffer
 uint8_t dataBuffer[MAX_BUFFER_SIZE];
+
+//variables
+uint8_t LEDChannels;
+uint8_t PPGChannels;
+uint8_t sampleCnt; // samples count -> to be read from fifo register 0x07;
+uint8_t dataPointCount;
+
+//initialising data arrays
+uint8_t tag[LEDChannels][PPGChannels][dataPointCount];     // tag channels 
+uint8_t LEDData[LEDChannels][PPGChannels][dataPointCount]; // tag channels 
+
+
+
 
 
 //class constructor with setup of SPI VSPI
@@ -120,10 +133,8 @@ uint8_t getLEDChannelsCount(){
 }
 void deviceDataRead(){
     int i;
-    uint8_t sampleCnt; // samples count -> to be read from fifo register 0x07;
     uint8_t dataBuffer[FIFO_SAMPLES * 3] // 3 bytes per sample
-    uint8_t LEDChannels;
-    uint8_t PPGChannels;
+    
 
     //calculate values
     sampleCnt = sampleCount();
@@ -131,11 +142,9 @@ void deviceDataRead(){
     PPGChannels = getPPGChannelsCount();
 
     uint8_t ChannelsCount = LEDChannels + PPGChannels;
-    Uint8_t dataPointCount = sampleCnt/ChannelsCount;
+    dataPointCount = sampleCnt/ChannelsCount;
 
-    //initialising data arrays
-    uint8_t tag[LEDChannels][PPGChannels][dataPointCount];     // tag channels 
-    uint8_t LEDData[LEDChannels][PPGChannels][dataPointCount]; // tag channels 
+
 
     uint8_t tag[dataPointCount][ChannelsCount]; //temporary buffer
     uint8_t LEDData[dataPointCount][ChannelsCount]; // temporay buffer
