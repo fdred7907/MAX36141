@@ -28,34 +28,23 @@ class MAX86141 {
         MAX86141();
         bool begin();
         void deviceDataRead(void);
+        uint8_t sampleCount();//to read sample count
+        void getLEDCSequence(uint8*);//to get LEDC sequence
+        void getPPGConfiguration();//to read PPG values
+        uint8_t getPPGChannelsCount();//to get ppg channel count
+        uint8_t getLEDChannelsCount();//to get LED channels count
+        
+
 
 
     private:
-        // CircularBuffer<FifoData,FIFO_SAMPLES> fifoBuffer;
 
         uint8_t readRegister(uint8_t regAddress,uint8_t length);
         void writeRegister(uint8_t regAddress, uint8_t data);
         void burstRead(uint8_t regAddress,uint8_t* buffer, uint8_t length);
-        // void readFifoData();
 };
 
-//general
 
-/* #device number
-#spi device numbers
-#default configurations
-
-//ppg adc values
-#ppg adc current range
-#ppg adc integration time range
-#photodiode input capacitance
-
-
-//led values
-#full scale led current
-#minimum output voltage
-
-*/
 
 
 

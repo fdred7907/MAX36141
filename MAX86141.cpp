@@ -137,11 +137,44 @@ void deviceDataRead(){
     uint8_t tag[LEDChannels][PPGChannels][dataPointCount];     // tag channels 
     uint8_t LEDData[LEDChannels][PPGChannels][dataPointCount]; // tag channels 
 
+    uint8_t tag[dataPointCount][ChannelsCount]; //temporary buffer
+    uint8_t LEDData[dataPointCount][ChannelsCount]; // temporay buffer
 
     //read fifo upto sampleCnt into dataBuffer
     burstRead(FIFO_DATA,dataBuffer,sampleCnt);
 
-    //
+    for (int i = 0; i < dataPointCount; i++){
+        for ( int j=0;j<ChannelsCount;j++){
+            // extracting tag from each data point by 
+            //right shifting 3 for getting 5 bits
+            // and masking with 00011111 to extract them 
+            tag[i][j] = (dataBuffer[i*3*ChannelsCount + 3*j]>>3)  & 0x1f; 
+
+            //extracting led data per data point by left shifting first  byte 16
+            // left shifting second byte 8
+            //third byte no shift
+            // masking with 07FFFF to rmeove the left most 5 bits of tag
+            LEDData[i][j] = (dataBuffer[i*3*ChannelsCount+j*3] << 16) | 
+                            (dataBuffer[i*3*ChannelsCount+j*3+1] << 8 )|
+                            (dataBuffer[i*3*ChannelsCount+j*3+2]) 
+                            & 0x7FFFF;
+        }
+}
+
+int channel;
+// arranging the extracted data as per channel numbers
+for (int i = 0; i < dataPointCount; i++){
+    channel = 0; 
+    for (int j = 0 ; j < LEDChannels ; j++ ){
+        for (int k =0 ; k < PPGChannels;k++){
+
+                tag[j][k][i] = tag[i][channel];
+                LEDData[j][k][i] = LEDData[i][channel];
+
+                channel++;
+            }
+        }    
+    }
 
 
 }
