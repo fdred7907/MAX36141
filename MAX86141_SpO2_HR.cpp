@@ -1,8 +1,8 @@
-#include "MAX86141_SpO2.h"
+#include "MAX86141_SpO2_HR.h"
 
 
 MAX86141 max;
-MAX86141_SpO2::MAX86141_SpO2(){
+MAX86141_SpO2_HR::MAX86141_SpO2_HR(){
 
 }
 
@@ -10,12 +10,14 @@ float ir_dc;
 float red_dc;
 float red_ac_avg;
 float ir_ac_avg;
+uint8_t ir_peaks[dataPointCount];
+uint8_t red_peaks[dataPointCount];
 
 
 
 
 
-void MAX86141:initialize(){
+void MAX86141_SpO2_HR:initialize(){
     max.writeRegister(SYS_CTRL_REG,(0x1) >> 7); //Soft Reset
     delay(1000);
     max.readRegister(INTERRUPT_STATUS_1) ; //CLEAR INTERRUPTS
@@ -32,14 +34,14 @@ void MAX86141:initialize(){
     max.writeRegister(LED_PA_2,0x20) ; //led2 current 15.36 amp
 
     max.writeRegister(PPG_CONFIG_2,(max.readRegister(PPG_CONFIG_2)| 0x0 << 2)); // sample avveraging 1
-    max.writeRegister(PPG_CONFIG_2,(max.readRegister(PPG_CONFIG_2) & ~(0b11111000)| 0x00 << 3)); // sample rate
+    max.writeRegister(PPG_CONFIG_2,(max.readRegister(PPG_CONFIG_2) & ~(0b11111000)| 0xDD << 3)); // sample rate
     max.writeRegister(PPG_CONFIG_3,((max.readRegister(PPG_CONFIG_3) & ~(0b11000000)) | 0x3 << 6)); // LED settling time
     max.writeRegister(PHD_BIAS,(max.max.readRegister(PHD_BIAS) | 0x01 )); // PD biasing for cpd 0-65 pF
 
 
 }
 
-float MAX86141_SpO2::getSpO2(){
+float MAX86141_SpO2_HR::getSpO2(){
     //set up for led1 -> IR
     // LED2 -> Red
     //  2 channel PPG measurement
@@ -73,9 +75,7 @@ float MAX86141_SpO2::getSpO2(){
     }
 
     //peak detection of IR and RED AC data
-    uint8_t ir_peaks[dataPointCount];
-    uint8_t red_peaks[dataPointCount];
-
+    
     uint8_t ir_min_peak_ht = ir_dc;
     uint8_t red_min_peak_ht = red_dc;
     uint8_t min_dis = 4;
@@ -123,4 +123,19 @@ float MAX86141_SpO2::getSpO2(){
     return spo2;
 
 
+}
+
+float MAX86141_SpO2_HR::getHR(){
+    float hr ;
+    float hrs[curr_peak_count_ir-1];
+    float sum_hr = 0;
+    float sr =221; //sert in config
+    
+    for (i=0;i<curr_peak_count_ir-1;i++){
+        hrs[i] = (sr/(ir_peaks[i+1]-ir_peaks[i]))*60;
+        sum_hr += hrs[i];
+    } 
+    hr = sum_hr/(curr_peak_count_ir-1);
+    
+    return hr;
 }

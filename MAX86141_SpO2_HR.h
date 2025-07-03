@@ -12,6 +12,7 @@ class MAX86141_SpO2{
         void initialize();
         void configure();
         float getSpO2();
+        float getHR();
 
 }
 
