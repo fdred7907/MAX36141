@@ -12,6 +12,10 @@ float red_ac_avg;
 float ir_ac_avg;
 uint8_t ir_peaks[dataPointCount];
 uint8_t red_peaks[dataPointCount];
+float hrs[curr_peak_count_ir-1]; // heart rate in 1 peak interval dfifiernce
+float ibis[curr_peak_count_ir-1];// interbeat interval R-R intervals
+
+
 
 
 
@@ -127,15 +131,39 @@ float MAX86141_SpO2_HR::getSpO2(){
 
 float MAX86141_SpO2_HR::getHR(){
     float hr ;
-    float hrs[curr_peak_count_ir-1];
+   
     float sum_hr = 0;
     float sr =221; //sert in config
     
     for (i=0;i<curr_peak_count_ir-1;i++){
-        hrs[i] = (sr/(ir_peaks[i+1]-ir_peaks[i]))*60;
+        ibis[i]=(ir_peaks[i+1]-ir_peaks[i]);
+        hrs[i] = (sr/ibis[i])*60;
         sum_hr += hrs[i];
     } 
     hr = sum_hr/(curr_peak_count_ir-1);
     
     return hr;
 }
+
+
+//calculate HRV
+float MAX86141_SpO2_HR::getHRV(){
+
+    //find hrv by RMSSD root mean square of successive differnces
+    float hrv;
+    float ibi_sqr[curr_peak_count_ir-1];
+    float sum_sq_ibi = 0; // sum of square of Interbeat interval times
+
+    float avg_sq_ibi; // avg of squares of ibis
+    for(i=0;i<curr_peak_count_ir-1;i++){
+        ibi_sqr[i] = ibis[i]*ibis[i];
+        sum_sq_ibi += ibi_sqr[i];
+
+    }
+
+    avg_sq_ibi = sum_sq_ibi/(curr_peak_count_ir -1);
+    hrv = sqrt(avg_sq_ibi);
+    return hrv;
+
+}
+

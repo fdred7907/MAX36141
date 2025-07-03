@@ -13,6 +13,7 @@ class MAX86141_SpO2{
         void configure();
         float getSpO2();
         float getHR();
+        float getHRV(); // calculate Heart Rate Variability HRV
 
 }
 
